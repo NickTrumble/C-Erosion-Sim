@@ -1,0 +1,14 @@
+================================================================================
+Linker Errors
+Generated: 2026-09-02T00:08:43.928Z
+Total Errors: 3
+================================================================================
+
+[LNK2019] (MSVC)
+unresolved external symbol __imp_glClear referenced in function main [C:\Users\iantr\Desktop\coding\c++ Terrain\build\TerrainGenerator.vcxproj]
+
+[LNK2019] (MSVC)
+unresolved external symbol __imp_glClearColor referenced in function main [C:\Users\iantr\Desktop\coding\c++ Terrain\build\TerrainGenerator.vcxproj]
+
+[LNK1120] (MSVC)
+2 unresolved externals [C:\Users\iantr\Desktop\coding\c++ Terrain\build\TerrainGenerator.vcxproj]
