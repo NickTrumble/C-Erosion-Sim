@@ -4,6 +4,9 @@
     <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\benchmark\benchmark.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\render\render.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -20,6 +23,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\maths\noise\simplex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\terrain\terrain_generator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\input\input.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\input\keybindings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\render\colour_map.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

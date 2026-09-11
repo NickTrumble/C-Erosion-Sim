@@ -34,6 +34,10 @@ bool Window::shouldClose() const {
     return glfwWindowShouldClose(window);
 }
 
+bool Window::isKeyDown(int key) const{
+    return glfwGetKey(window, key) == GLFW_PRESS;
+}
+
 void Window::pollEvents() {
     glfwPollEvents();
 }

@@ -9,6 +9,7 @@ class Window{
         ~Window();
 
         bool shouldClose() const;
+        bool isKeyDown(int key) const;
         void pollEvents();
         void swapBuffers();
 

@@ -8,7 +8,7 @@
 |---|---|
 | Build | Release |
 | CPU | Intel Core i5-9400 |
-| Heightmap size | 1000 × 1000 |
+| Heightmap size | 512 x 512 |
 | Octaves | 6 |
 | Persistence | 0.5 |
 | Scale | 0.02 |

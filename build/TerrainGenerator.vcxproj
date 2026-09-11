@@ -359,12 +359,17 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\main.cpp" />
+    <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\benchmark\benchmark.cpp" />
     <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\render\render.cpp" />
     <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\render\window.cpp" />
     <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\terrain\heightmap.cpp" />
     <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\maths\noise\baseNoise.cpp" />
     <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\maths\noise\perlin.cpp" />
     <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\maths\noise\simplex.cpp" />
+    <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\terrain\terrain_generator.cpp" />
+    <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\input\input.cpp" />
+    <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\input\keybindings.cpp" />
+    <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\render\colour_map.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="C:\Users\iantr\Desktop\coding\c++ Terrain\build\ZERO_CHECK.vcxproj">

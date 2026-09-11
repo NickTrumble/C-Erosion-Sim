@@ -1,49 +1,47 @@
 #include "render/Window.hpp"
+#include "benchmark/benchmark.hpp"
 #include "maths/noise/perlin.hpp"
 #include "terrain/heightmap.hpp"
 #include "render/render.hpp"
-#include <iostream>
-#include <chrono>
+#include "input/input.hpp"
+#include "terrain/terrain_generator.hpp"
+#include "render/colour_map.hpp"
+#include "app/app_state.hpp"
+#include "input/keybindings.hpp"
 
-using Clock = std::chrono::steady_clock;
-
-Clock::time_point startTimer(){
-    return Clock::now();
-}
-
-double endTimer(Clock::time_point startPoint, std::string name){
-    double duration = 
-     std::chrono::duration<double, std::milli>(Clock::now() - startPoint).count();
-    
-    std::cout<< name << ": " << duration << "ms\n";
-    return duration;
+void handleInput(Input& input, Heightmap& heightmap, perlin& noise, float scale, AppState state, TerrainGeneratorSettings terrainSettings){
+    if (Keybindings::shouldRegenerate(input)){
+        noise = perlin(terrainSettings.heightmapSize, terrainSettings.octaves, terrainSettings.persistence);
+        heightmap = Heightmap::generateHeightmap(noise, scale);
+        std::cout<<"regenerated \n";
+    }
+    if (Keybindings::shouldToggleControls(input)){
+        state.showControls = !state.showControls;
+        std::cout<<"controls changed \n";
+    }
+    if (Keybindings::shouldChangeColourMap(input)){
+        state.type = ColourMap::nextColourMap(state.type);
+        std::cout<<"colour changed \n";
+    }
 }
 
 int main() {
+    bool benchmark = false;
+
     int windowWidth = 1024;
     int windowHeight = 1024;
     
-    int heightmapSize = 512;
-    int octaves = 6;
-    float persistence = 0.5;
+    TerrainGeneratorSettings terrainSettings;
+    AppState appState;      
     float scale = 0.02;
 
+    Input input;
     Window window(windowWidth, windowHeight, "Terrain generator");
 
-    perlin noise(heightmapSize, octaves, persistence);
+    perlin noise(terrainSettings.heightmapSize, terrainSettings.octaves, terrainSettings.persistence);
     Heightmap heightmap = Heightmap::generateHeightmap(noise, scale);
 
-    //benchmarking
-    int benchmarkAttempts = 5;
-    double duration = 0;
-    std::string benchmarkName = "Heightmap Generation";
-
-    for (int i = 0; i < benchmarkAttempts; i++){
-        auto start = startTimer();
-        Heightmap h = Heightmap::generateHeightmap(noise, scale);
-        duration += endTimer(start, benchmarkName);
-    }
-    std::cout << benchmarkName << " average: " << duration / benchmarkAttempts << "ms\n";
+    if (benchmark) runHeightmapBenchmark(noise, scale);
 
     Render renderer;
 
@@ -56,6 +54,8 @@ int main() {
 
         window.swapBuffers();
         window.pollEvents();
+        input.update(window);
+        handleInput(input, heightmap, noise, scale, appState, terrainSettings);
     }
 
     return 0;
