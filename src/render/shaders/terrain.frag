@@ -46,6 +46,41 @@ vec3 heatColour(float height)
     return mix(colours[lower], colours[upper], fract(position));
 }
 
+float normaliseHeight(float rawHeight)
+{
+    float range = max(maxHeight - minHeight, 0.0001);
+
+    return clamp(
+        (rawHeight - minHeight) / range,
+        0.0,
+        1.0
+    );
+}
+
+vec3 terrainNormal(vec2 uv)
+{
+    vec2 texelSize = 1.0 / vec2(textureSize(heightMap, 0));
+
+    float left  = normaliseHeight(
+        texture(heightMap, uv - vec2(texelSize.x, 0.0)).r
+    );
+    float right = normaliseHeight(
+        texture(heightMap, uv + vec2(texelSize.x, 0.0)).r
+    );
+    float down  = normaliseHeight(
+        texture(heightMap, uv - vec2(0.0, texelSize.y)).r
+    );
+    float up    = normaliseHeight(
+        texture(heightMap, uv + vec2(0.0, texelSize.y)).r
+    );
+
+    return normalize(vec3(
+        (left - right) * 12.0,
+        (down - up) * 12.0,
+        1.0
+    ));
+}
+
 void main()
 {
     float height = texture(heightMap, textureCoordinate).r;
@@ -67,6 +102,12 @@ void main()
         colour = vec3(normalisedHeight);
     }
 
-    //rgb 
-    fragmentColour = vec4(colour, 1.0);
+    vec3 normal = terrainNormal(textureCoordinate);
+    vec3 lightDirection = normalize(vec3(-0.4, 0.5, 1.0));
+
+    float diffuse = max(dot(normal, lightDirection), 0.0);
+    float lighting = 0.35 + diffuse * 0.65;
+
+    //rgb
+    fragmentColour = vec4(colour * lighting, 1.0);
 }

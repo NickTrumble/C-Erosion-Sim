@@ -10,7 +10,7 @@ class Render{
     public:
         Render();
         ~Render();
-        void drawHeightmap(const Heightmap& heightmap, int windowWidth, int windowHeight, AppState state);
+        void drawHeightmap(int windowWidth, int windowHeight, AppState state);
         void uploadHeightmap(const Heightmap& heightmap);
         
     private:

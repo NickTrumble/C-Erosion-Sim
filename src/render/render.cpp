@@ -27,7 +27,7 @@ Render::~Render() {
     glDeleteVertexArrays(1, &screenVao);
 }
 
-void Render::drawHeightmap(const Heightmap& heightmap, int windowWidth, int windowHeight, AppState state){
+void Render::drawHeightmap(int windowWidth, int windowHeight, AppState state){
     glViewport(0, 0, windowWidth, windowHeight);
     terrainShader.use();
 
