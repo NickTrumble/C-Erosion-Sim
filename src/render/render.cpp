@@ -34,6 +34,7 @@ void Render::drawHeightmap(const Heightmap& heightmap, int windowWidth, int wind
     terrainShader.setInt("heightMap", 0);
     terrainShader.setFloat("minHeight", minHeight);
     terrainShader.setFloat("maxHeight", maxHeight);
+    terrainShader.setInt("colourMapType",static_cast<int>(state.type));
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, heightTexture);
