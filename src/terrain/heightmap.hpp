@@ -5,7 +5,9 @@
 
 class Heightmap{
     public:
+        Heightmap() = default;
         Heightmap(int width, int height);
+
 
         int getHeight() const;
         int getWidth() const;
@@ -20,8 +22,8 @@ class Heightmap{
         }
         
     private:
-        int width;
-        int height;
+        int width = 0;
+        int height = 0;
         std::vector<float> values;
 
         int index(int x, int y) const;

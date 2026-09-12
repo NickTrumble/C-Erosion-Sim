@@ -8,15 +8,19 @@
 #include "render/colour_map.hpp"
 #include "app/app_state.hpp"
 #include "input/keybindings.hpp"
-#include "render/colour_map.hpp"
-#include "render/render.hpp"    
+#include <chrono>
+#include <future>
+#include <optional>
 
-void handleInput(Input& input, Heightmap& heightmap, perlin& noise, float scale, AppState& state, TerrainGeneratorSettings terrainSettings, Render& renderer){
+bool handleInputs(Input& input, AppState& state, bool isGenerating){
     if (Keybindings::shouldRegenerate(input)){
-        noise = perlin(terrainSettings.heightmapSize, terrainSettings.octaves, terrainSettings.persistence);
-        heightmap = Heightmap::generateHeightmap(noise, scale);
-        renderer.uploadHeightmap(heightmap);
-        std::cout<<"Regenerated \n";
+        if (isGenerating){
+            std::cout<<"Already generating new map";
+        }
+        else {
+            std::cout << "Regenerated\n";
+            return true;
+        }
     }
     if (Keybindings::shouldToggleControls(input)){
         state.showControls = !state.showControls;
@@ -26,6 +30,7 @@ void handleInput(Input& input, Heightmap& heightmap, perlin& noise, float scale,
         state.type = ColourMap::nextColourMap(state.type);
         std::cout <<"Colour changed: " << colourMapName(state.type) << "\n";
     }
+    return false;
 }
 
 int main() {
@@ -47,6 +52,7 @@ int main() {
 
     Render renderer;
     renderer.uploadHeightmap(heightmap);
+    std::optional<std::future<Heightmap>> pendingHeightmap;
 
     while (!window.shouldClose()){
 
@@ -58,7 +64,36 @@ int main() {
         window.swapBuffers();
         window.pollEvents();
         input.update(window);
-        handleInput(input, heightmap, noise, scale, appState, terrainSettings, renderer);
+
+
+        if (pendingHeightmap.has_value() && pendingHeightmap->wait_for(std::chrono::milliseconds{0}) == std::future_status::ready){
+            heightmap = pendingHeightmap->get();
+            renderer.uploadHeightmap(heightmap);
+
+            pendingHeightmap.reset();
+            std::cout<<"Terrain generation complete\n";
+        }
+
+        if (handleInputs(input, appState, pendingHeightmap.has_value())){
+            TerrainGeneratorSettings generatorSettings = terrainSettings;
+
+            pendingHeightmap.emplace(std::async(
+                std::launch::async,
+                [generatorSettings, scale] {
+                    perlin generatedNoise(
+                        generatorSettings.heightmapSize,
+                        generatorSettings.octaves,
+                        generatorSettings.persistence
+                    );
+
+                    return Heightmap::generateHeightmap(
+                        generatedNoise,
+                        scale
+                    );
+                }
+            ));
+
+        }
     }
 
     return 0;

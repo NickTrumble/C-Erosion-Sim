@@ -1,4 +1,7 @@
 #include "heightmap.hpp"
+#include <algorithm>
+#include <thread>
+#include <vector>
 
 Heightmap::Heightmap(int width, int height):
     width(width),
@@ -30,12 +33,43 @@ Heightmap Heightmap::generateHeightmap(perlin& noise, float scale){
     int size = noise.getSize();
     Heightmap heightmap(size, size);
 
-    for (int i = 0; i < size; i++){
-        for (int j = 0; j < size; j++){
-            float val = noise.noiseMethod(i * scale, j * scale);
-            heightmap.setHeightAt(i, j, val);
-        }
+    const unsigned availableThreads = std::thread::hardware_concurrency();
+    const int workerCount = std::min(
+        size,
+        static_cast<int>(availableThreads == 0 ? 1 : availableThreads)
+    );
+
+    const int rowsPerWorker = (size + workerCount - 1) / workerCount;
+    std::vector<std::thread> workers;
+    workers.reserve(workerCount);
+
+    for (int worker = 0; worker < workerCount; ++worker) {
+        const int firstRow = worker * rowsPerWorker;
+        const int lastRow = std::min(size, firstRow + rowsPerWorker);
+
+        workers.emplace_back([
+            &heightmap,
+            &noise,
+            scale,
+            size,
+            firstRow,
+            lastRow
+        ] {
+            for (int y = firstRow; y < lastRow; ++y) {
+                for (int x = 0; x < size; ++x) {
+                    heightmap.values[y * size + x] = noise.noiseMethod(
+                        x * scale,
+                        y * scale
+                    );
+                }
+            }
+        });
     }
+
+    for (std::thread& worker : workers) {
+        worker.join();
+    }
+
     return heightmap;
 }
 
