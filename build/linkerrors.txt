@@ -1,11 +1,8 @@
 ================================================================================
 Linker Errors
-Generated: 2026-09-12T21:28:00.889Z
-Total Errors: 2
+Generated: 2026-09-12T21:49:32.775Z
+Total Errors: 1
 ================================================================================
 
-[LNK2019] (MSVC)
-unresolved external symbol "public: __cdecl Heightmap::Heightmap(void)" (??0Heightmap@@QEAA@XZ) referenced in function "public: __cdecl std::_Associated_state<class Heightmap>::_Associated_state<class Heightmap>(struct std::_Deleter_base<class Heightmap> *)" (??0?$_Associated_state@VHeightmap@@@std@@QEAA@PEAU?$_Deleter_base@VHeightmap@@@1@@Z) [C:\Users\iantr\Desktop\coding\c++ Terrain\build\TerrainGenerator.vcxproj]
-
-[LNK1120] (MSVC)
-1 unresolved externals [C:\Users\iantr\Desktop\coding\c++ Terrain\build\TerrainGenerator.vcxproj]
+[LNK1168] (MSVC)
+cannot open C:\Users\iantr\Desktop\coding\c++ Terrain\build\Debug\TerrainGenerator.exe for writing [C:\Users\iantr\Desktop\coding\c++ Terrain\build\TerrainGenerator.vcxproj]

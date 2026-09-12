@@ -23,6 +23,7 @@ add_executable(TerrainGenerator
     src/input/keybindings.cpp
     src/render/colour_map.cpp
     src/render/shaders/shader.cpp
+    src/terrain/erosion/thermal_erosion.cpp
 )
 
 

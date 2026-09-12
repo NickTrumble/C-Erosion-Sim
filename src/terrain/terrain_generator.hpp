@@ -1,12 +1,18 @@
 #pragma once
 
+#include "heightmap.hpp"
+
 struct TerrainGeneratorSettings{
     int heightmapSize = 512;
     int octaves = 6;
     float persistence = 0.5;
     int seed = 0;
+    float transferRate = 0.15f;
+    float talusThreshold = 0.03f;
+    int erosionIterations = 50;  
 };
 
 class TerrainGenerator{
-
+    public:
+        static Heightmap generate(const TerrainGeneratorSettings& settings, float scale);
 };

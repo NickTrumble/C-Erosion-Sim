@@ -13,24 +13,12 @@
 #include <optional>
 #include <random>
 
-Heightmap generateTerrain(const TerrainGeneratorSettings& settings,float scale) {
-    perlin noise(
-        settings.heightmapSize,
-        settings.octaves,
-        settings.persistence,
-        settings.seed
-    );
-
-    return Heightmap::generateHeightmap(noise, scale);
-}
-
 bool handleInputs(Input& input, AppState& state, bool isGenerating){
     if (Keybindings::shouldRegenerate(input)){
         if (isGenerating){
             std::cout<<"Already generating new map";
         }
         else {
-            std::cout << "Regenerated\n";
             return true;
         }
     }
@@ -58,7 +46,7 @@ int main() {
     Input input;
     Window window(windowWidth, windowHeight, "Terrain generator");
     perlin noise(terrainSettings.heightmapSize, terrainSettings.octaves, terrainSettings.persistence, terrainSettings.seed);
-    Heightmap heightmap = generateTerrain(terrainSettings, scale);
+    Heightmap heightmap = TerrainGenerator::generate(terrainSettings, scale);
 
     if (benchmark) runHeightmapBenchmark(noise, scale);
 
@@ -83,26 +71,20 @@ int main() {
             renderer.uploadHeightmap(heightmap);
 
             pendingHeightmap.reset();
-            std::cout<<"Terrain generation complete\n";
+            std::cout<<"Terrain generation complete with seed: " << terrainSettings.seed <<"\n";
         }
 
         if (handleInputs(input, appState, pendingHeightmap.has_value())){
-            TerrainGeneratorSettings generatorSettings = terrainSettings;
+            TerrainGeneratorSettings& generatorSettings = terrainSettings;
 
             generatorSettings.seed = std::random_device{}();
 
             pendingHeightmap.emplace(std::async(
                 std::launch::async,
                 [generatorSettings, scale] {
-                    perlin generatedNoise(
-                        generatorSettings.heightmapSize,
-                        generatorSettings.octaves,
-                        generatorSettings.persistence,
-                        generatorSettings.seed
-                    );
-
-                    return Heightmap::generateHeightmap(
-                        generatedNoise,
+                    
+                    return TerrainGenerator::generate(
+                        generatorSettings,
                         scale
                     );
                 }
