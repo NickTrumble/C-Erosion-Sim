@@ -1,29 +1,11 @@
 ================================================================================
 Linker Errors
-Generated: 2026-09-12T14:41:53.608Z
-Total Errors: 8
+Generated: 2026-09-12T17:10:12.277Z
+Total Errors: 2
 ================================================================================
 
-[LNK2001] (MSVC)
-unresolved external symbol glad_glClear [C:\Users\iantr\Desktop\coding\c++ Terrain\build\TerrainGenerator.vcxproj]
-
-[LNK2001] (MSVC)
-unresolved external symbol glad_glClearColor [C:\Users\iantr\Desktop\coding\c++ Terrain\build\TerrainGenerator.vcxproj]
-
-[LNK2001] (MSVC)
-unresolved external symbol glad_glPixelStorei [C:\Users\iantr\Desktop\coding\c++ Terrain\build\TerrainGenerator.vcxproj]
-
-[LNK2001] (MSVC)
-unresolved external symbol glad_glRasterPos2f [C:\Users\iantr\Desktop\coding\c++ Terrain\build\TerrainGenerator.vcxproj]
-
-[LNK2001] (MSVC)
-unresolved external symbol glad_glPixelZoom [C:\Users\iantr\Desktop\coding\c++ Terrain\build\TerrainGenerator.vcxproj]
-
-[LNK2001] (MSVC)
-unresolved external symbol glad_glDrawPixels [C:\Users\iantr\Desktop\coding\c++ Terrain\build\TerrainGenerator.vcxproj]
-
 [LNK2019] (MSVC)
-unresolved external symbol gladLoadGLLoader referenced in function "public: __cdecl Window::Window(int,int,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &)" (??0Window@@QEAA@HHAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z) [C:\Users\iantr\Desktop\coding\c++ Terrain\build\TerrainGenerator.vcxproj]
+unresolved external symbol "public: __cdecl Render::~Render(void)" (??1Render@@QEAA@XZ) referenced in function main [C:\Users\iantr\Desktop\coding\c++ Terrain\build\TerrainGenerator.vcxproj]
 
 [LNK1120] (MSVC)
-7 unresolved externals [C:\Users\iantr\Desktop\coding\c++ Terrain\build\TerrainGenerator.vcxproj]
+1 unresolved externals [C:\Users\iantr\Desktop\coding\c++ Terrain\build\TerrainGenerator.vcxproj]

@@ -1,48 +1,65 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <algorithm>
+#include <string>
 #include <vector>
 #include "render.hpp"
 #include "../app/app_state.hpp"
 
+Render::Render()
+    : terrainShader(
+        std::string(TERRAIN_SHADER_DIR) + "/terrain.vert",
+        std::string(TERRAIN_SHADER_DIR) + "/terrain.frag")
+{
+    glGenVertexArrays(1, &screenVao);
+
+    glGenTextures(1, &heightTexture);
+
+    glBindTexture(GL_TEXTURE_2D, heightTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+}
+
+Render::~Render() {
+    glDeleteTextures(1, &heightTexture);
+    glDeleteVertexArrays(1, &screenVao);
+}
 
 void Render::drawHeightmap(const Heightmap& heightmap, int windowWidth, int windowHeight, AppState state){
-    int width = heightmap.getWidth();
-    int height = heightmap.getHeight();
+    glViewport(0, 0, windowWidth, windowHeight);
+    terrainShader.use();
 
-    std::vector<unsigned char> pixels(width * height * 3);
-    std::pair<float, float> minMax = heightmap.findHeightRange();
+    terrainShader.setInt("heightMap", 0);
+    terrainShader.setFloat("minHeight", minHeight);
+    terrainShader.setFloat("maxHeight", maxHeight);
 
-    for (int i = 0; i < width; i++) 
-    {
-        for (int j = 0; j < height; j++)
-        {
-            float val = heightmap.getHeightAt(i, j);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, heightTexture);
 
-            int index = (j * width + i) * 3;
-            std::array<unsigned char, 3> colour = ColourMap::colourToHeight(val, state.type, minMax.first, minMax.second);
-            pixels[index++] = colour[0];
-            pixels[index++] = colour[1];
-            pixels[index] = colour[2]; 
-        }        
-    }
+    glBindVertexArray(screenVao);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glBindVertexArray(0);
+}
 
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    
-    glRasterPos2f(-1.0f, -1.0f);
+void Render::uploadHeightmap(const Heightmap& heightmap) {
+    const auto [min, max] = heightmap.findHeightRange();
+    minHeight = min;
+    maxHeight = max;
 
-    glPixelZoom(
-        static_cast<float>(windowWidth) / width,
-        static_cast<float>(windowHeight) / height    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, heightTexture);
+
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        GL_R32F,
+        heightmap.getWidth(),
+        heightmap.getHeight(),
+        0,
+        GL_RED,
+        GL_FLOAT,
+        heightmap.getValues().data()
     );
-
-    glDrawPixels(
-        width,
-        height,
-        GL_RGB,
-        GL_UNSIGNED_BYTE,
-        pixels.data()
-    );
-
-    glPixelZoom(1.0f, 1.0f);
 }

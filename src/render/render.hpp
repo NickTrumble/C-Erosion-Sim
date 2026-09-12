@@ -1,10 +1,22 @@
 #pragma once
-#include <array>
+
+#include <glad/glad.h>
+
 #include "../terrain/heightmap.hpp"
 #include "../app/app_state.hpp"
+#include "shaders/shader.hpp"
 
 class Render{
     public:
+        Render();
+        ~Render();
         void drawHeightmap(const Heightmap& heightmap, int windowWidth, int windowHeight, AppState state);
+        void uploadHeightmap(const Heightmap& heightmap);
         
+    private:
+        unsigned int heightTexture = 0;
+        float minHeight = 0.0f;
+        float maxHeight = 1.0f;
+        Shader terrainShader;
+        unsigned int screenVao = 0;
 };

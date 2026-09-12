@@ -15,6 +15,9 @@ class Heightmap{
 
         static Heightmap generateHeightmap(perlin& noise, float scale);
         std::pair<float, float> findHeightRange() const;
+        const std::vector<float>& getValues() const {
+            return values;
+        }
         
     private:
         int width;

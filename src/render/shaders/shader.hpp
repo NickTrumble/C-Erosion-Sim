@@ -9,6 +9,8 @@ class Shader{
         ~Shader();
 
         void use() const;
+        void setInt(const char* name, int value) const;
+        void setFloat(const char* name, float value) const;
 
     private:
         unsigned int program = 0;

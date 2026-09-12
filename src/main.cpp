@@ -9,11 +9,13 @@
 #include "app/app_state.hpp"
 #include "input/keybindings.hpp"
 #include "render/colour_map.hpp"
+#include "render/render.hpp"    
 
-void handleInput(Input& input, Heightmap& heightmap, perlin& noise, float scale, AppState& state, TerrainGeneratorSettings terrainSettings){
+void handleInput(Input& input, Heightmap& heightmap, perlin& noise, float scale, AppState& state, TerrainGeneratorSettings terrainSettings, Render& renderer){
     if (Keybindings::shouldRegenerate(input)){
         noise = perlin(terrainSettings.heightmapSize, terrainSettings.octaves, terrainSettings.persistence);
         heightmap = Heightmap::generateHeightmap(noise, scale);
+        renderer.uploadHeightmap(heightmap);
         std::cout<<"Regenerated \n";
     }
     if (Keybindings::shouldToggleControls(input)){
@@ -44,6 +46,7 @@ int main() {
     if (benchmark) runHeightmapBenchmark(noise, scale);
 
     Render renderer;
+    renderer.uploadHeightmap(heightmap);
 
     while (!window.shouldClose()){
 
@@ -55,7 +58,7 @@ int main() {
         window.swapBuffers();
         window.pollEvents();
         input.update(window);
-        handleInput(input, heightmap, noise, scale, appState, terrainSettings);
+        handleInput(input, heightmap, noise, scale, appState, terrainSettings, renderer);
     }
 
     return 0;

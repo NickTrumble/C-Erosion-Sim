@@ -27,3 +27,6 @@ add_executable(TerrainGenerator
 
 
 target_link_libraries(TerrainGenerator PRIVATE glfw glad::glad OpenGL::GL)
+target_compile_definitions(TerrainGenerator PRIVATE
+    TERRAIN_SHADER_DIR="${CMAKE_CURRENT_SOURCE_DIR}/src/render/shaders"
+)
