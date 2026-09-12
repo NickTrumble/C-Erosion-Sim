@@ -23,7 +23,9 @@ Window::Window(int width, int height, const std::string& title){
 
     glfwMakeContextCurrent(window);
 
-    
+    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))){
+        throw std::runtime_error("Failed to load glad opelgl");
+    }
 }
 
 Window::~Window()

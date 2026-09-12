@@ -22,6 +22,7 @@ add_executable(TerrainGenerator
     src/input/input.cpp
     src/input/keybindings.cpp
     src/render/colour_map.cpp
+    src/render/shaders/shader.cpp
 )
 
 
