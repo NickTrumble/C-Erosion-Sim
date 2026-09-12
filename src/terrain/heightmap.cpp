@@ -38,3 +38,22 @@ Heightmap Heightmap::generateHeightmap(perlin& noise, float scale){
     }
     return heightmap;
 }
+
+std::pair<float, float> Heightmap::findHeightRange() const{
+    float min = 10;
+    float max = -10;
+    float val = 0;
+    for (int i = 0; i < width; i++)
+    {
+        for (int j = 0; j < height; j++)
+        {
+            val = getHeightAt(i, j);
+            if (val > max){
+                max = val;
+            } else if (val < min){
+                min = val;
+            }
+        }
+    }
+    return std::pair<float, float>(min, max);
+}

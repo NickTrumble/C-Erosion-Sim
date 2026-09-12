@@ -1,28 +1,28 @@
 #include <GLFW/glfw3.h>
-#include "render.hpp"
 #include <algorithm>
 #include <vector>
+#include "render.hpp"
+#include "../app/app_state.hpp"
 
-void Render::drawHeightmap(const Heightmap& heightmap, int windowWidth, int windowHeight){
+
+void Render::drawHeightmap(const Heightmap& heightmap, int windowWidth, int windowHeight, AppState state){
     int width = heightmap.getWidth();
     int height = heightmap.getHeight();
 
     std::vector<unsigned char> pixels(width * height * 3);
+    std::pair<float, float> minMax = heightmap.findHeightRange();
 
-    for (int i = 0; i < width; i++)
+    for (int i = 0; i < width; i++) 
     {
         for (int j = 0; j < height; j++)
         {
             float val = heightmap.getHeightAt(i, j);
-            float normalised = 0.5f * (val + 1.0f);
-            normalised = std::clamp(normalised, 0.0f, 1.0f);
-
-            unsigned char grey = static_cast<unsigned char>(normalised * 255.0f);
 
             int index = (j * width + i) * 3;
-            pixels[index++] = grey;
-            pixels[index++] = grey;
-            pixels[index] = grey; 
+            std::array<unsigned char, 3> colour = ColourMap::colourToHeight(val, state.type, minMax.first, minMax.second);
+            pixels[index++] = colour[0];
+            pixels[index++] = colour[1];
+            pixels[index] = colour[2]; 
         }        
     }
 

@@ -8,20 +8,21 @@
 #include "render/colour_map.hpp"
 #include "app/app_state.hpp"
 #include "input/keybindings.hpp"
+#include "render/colour_map.hpp"
 
-void handleInput(Input& input, Heightmap& heightmap, perlin& noise, float scale, AppState state, TerrainGeneratorSettings terrainSettings){
+void handleInput(Input& input, Heightmap& heightmap, perlin& noise, float scale, AppState& state, TerrainGeneratorSettings terrainSettings){
     if (Keybindings::shouldRegenerate(input)){
         noise = perlin(terrainSettings.heightmapSize, terrainSettings.octaves, terrainSettings.persistence);
         heightmap = Heightmap::generateHeightmap(noise, scale);
-        std::cout<<"regenerated \n";
+        std::cout<<"Regenerated \n";
     }
     if (Keybindings::shouldToggleControls(input)){
         state.showControls = !state.showControls;
-        std::cout<<"controls changed \n";
+        std::cout<<"Controls changed \n";
     }
     if (Keybindings::shouldChangeColourMap(input)){
         state.type = ColourMap::nextColourMap(state.type);
-        std::cout<<"colour changed \n";
+        std::cout <<"Colour changed: " << colourMapName(state.type) << "\n";
     }
 }
 
@@ -37,7 +38,6 @@ int main() {
 
     Input input;
     Window window(windowWidth, windowHeight, "Terrain generator");
-
     perlin noise(terrainSettings.heightmapSize, terrainSettings.octaves, terrainSettings.persistence);
     Heightmap heightmap = Heightmap::generateHeightmap(noise, scale);
 
@@ -50,7 +50,7 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        renderer.drawHeightmap(heightmap, windowWidth, windowHeight);
+        renderer.drawHeightmap(heightmap, windowWidth, windowHeight, appState);
 
         window.swapBuffers();
         window.pollEvents();

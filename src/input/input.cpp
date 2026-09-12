@@ -6,7 +6,7 @@
 void Input::update(Window& window){
     previousKeys = currentKeys;
 
-    for (int i = 0; i < GLFW_KEY_LAST; i++){
+    for (int i = 0; i <= GLFW_KEY_LAST; i++){
         currentKeys[i] = window.isKeyDown(i);
     }
 }

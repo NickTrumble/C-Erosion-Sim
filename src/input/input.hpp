@@ -10,6 +10,6 @@ class Input{
         bool wasPressed(int key) const;
 
     private:
-        std::array<bool, GLFW_KEY_LAST + 1> currentKeys;
-        std::array<bool, GLFW_KEY_LAST + 1> previousKeys;
+        std::array<bool, GLFW_KEY_LAST + 1> currentKeys {};
+        std::array<bool, GLFW_KEY_LAST + 1> previousKeys {};
 };

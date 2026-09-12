@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(glfw3 CONFIG REQUIRED)
+find_package(glad CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
 
 add_executable(TerrainGenerator
@@ -24,4 +25,4 @@ add_executable(TerrainGenerator
 )
 
 
-target_link_libraries(TerrainGenerator PRIVATE glfw OpenGL::GL)
+target_link_libraries(TerrainGenerator PRIVATE glfw glad::glad OpenGL::GL)
