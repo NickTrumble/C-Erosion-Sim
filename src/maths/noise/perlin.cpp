@@ -1,7 +1,7 @@
 #include "perlin.hpp"
 
-perlin::perlin(int size, int octave, float pers):
-    baseNoise(size, octave, pers)
+perlin::perlin(int size, int octave, float pers, unsigned int seed):
+    baseNoise(size, octave, pers, seed)
     {}
 
 float perlin::lerp(float t, float a, float b) const{

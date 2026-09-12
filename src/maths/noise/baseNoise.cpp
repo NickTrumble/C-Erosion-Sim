@@ -3,16 +3,16 @@
 #include <random>
 
 
-baseNoise::baseNoise(int size, int octave, float pers):
+baseNoise::baseNoise(int size, int octave, float pers, unsigned int seed):
     numSamples(size),
     octaves(octave),
-    persistence(pers)
+    persistence(pers),
+    seed(seed)
     {
         pTable.resize(size * 2);
         std::iota(pTable.begin(), pTable.begin() + size, 0);
 
-        std::random_device randomDevice;
-        std::mt19937 generator(randomDevice());
+        std::mt19937 generator(seed);
 
         std::shuffle(pTable.begin(), pTable.begin() + size, generator);
 

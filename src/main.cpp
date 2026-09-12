@@ -11,6 +11,18 @@
 #include <chrono>
 #include <future>
 #include <optional>
+#include <random>
+
+Heightmap generateTerrain(const TerrainGeneratorSettings& settings,float scale) {
+    perlin noise(
+        settings.heightmapSize,
+        settings.octaves,
+        settings.persistence,
+        settings.seed
+    );
+
+    return Heightmap::generateHeightmap(noise, scale);
+}
 
 bool handleInputs(Input& input, AppState& state, bool isGenerating){
     if (Keybindings::shouldRegenerate(input)){
@@ -45,8 +57,8 @@ int main() {
 
     Input input;
     Window window(windowWidth, windowHeight, "Terrain generator");
-    perlin noise(terrainSettings.heightmapSize, terrainSettings.octaves, terrainSettings.persistence);
-    Heightmap heightmap = Heightmap::generateHeightmap(noise, scale);
+    perlin noise(terrainSettings.heightmapSize, terrainSettings.octaves, terrainSettings.persistence, terrainSettings.seed);
+    Heightmap heightmap = generateTerrain(terrainSettings, scale);
 
     if (benchmark) runHeightmapBenchmark(noise, scale);
 
@@ -77,13 +89,16 @@ int main() {
         if (handleInputs(input, appState, pendingHeightmap.has_value())){
             TerrainGeneratorSettings generatorSettings = terrainSettings;
 
+            generatorSettings.seed = std::random_device{}();
+
             pendingHeightmap.emplace(std::async(
                 std::launch::async,
                 [generatorSettings, scale] {
                     perlin generatedNoise(
                         generatorSettings.heightmapSize,
                         generatorSettings.octaves,
-                        generatorSettings.persistence
+                        generatorSettings.persistence,
+                        generatorSettings.seed
                     );
 
                     return Heightmap::generateHeightmap(

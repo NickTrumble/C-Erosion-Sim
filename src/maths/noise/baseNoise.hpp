@@ -6,7 +6,7 @@
 class baseNoise
 {
     public:
-        baseNoise(int size, int octave, float pers);
+        baseNoise(int size, int octave, float pers, unsigned int seed);
 
         virtual float octave(float x, float y) = 0;
         float noiseMethod(float x, float y);
@@ -17,6 +17,7 @@ class baseNoise
         int numSamples;
         int octaves;
         float persistence;
+        unsigned int seed;
 
         int fastFloor(float x);
         float gradientCalc(int corner, float x, float y);
