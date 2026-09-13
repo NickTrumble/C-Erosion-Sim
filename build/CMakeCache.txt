@@ -283,9 +283,6 @@ glad_DIR:PATH=C:/Users/iantr/Desktop/coding/c++ Terrain/build/vcpkg_installed/x6
 //The directory containing a CMake configuration file for glfw3.
 glfw3_DIR:PATH=C:/Users/iantr/Desktop/coding/c++ Terrain/build/vcpkg_installed/x64-windows/share/glfw3
 
-//Path to a file.
-src_in:FILEPATH=C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.20/Modules/CMakeCCompilerId.c.in
-
 
 ########################
 # INTERNAL cache entries

@@ -13,6 +13,7 @@ add_executable(TerrainGenerator
     src/main.cpp
     src/benchmark/benchmark.cpp
     src/render/render.cpp
+    src/render/camera.cpp
     src/render/window.cpp
     src/terrain/heightmap.cpp
     src/maths/noise/baseNoise.cpp

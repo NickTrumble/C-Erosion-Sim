@@ -27,7 +27,7 @@ Render::~Render() {
     glDeleteVertexArrays(1, &screenVao);
 }
 
-void Render::drawHeightmap(int windowWidth, int windowHeight, AppState state){
+void Render::drawHeightmap(int windowWidth, int windowHeight, AppState state, const Camera& camera){
     glViewport(0, 0, windowWidth, windowHeight);
     terrainShader.use();
 
@@ -35,6 +35,8 @@ void Render::drawHeightmap(int windowWidth, int windowHeight, AppState state){
     terrainShader.setFloat("minHeight", minHeight);
     terrainShader.setFloat("maxHeight", maxHeight);
     terrainShader.setInt("colourMapType",static_cast<int>(state.type));
+    terrainShader.setVec2("cameraCenter", camera.getCenterX(), camera.getCenterY());
+    terrainShader.setFloat("cameraZoom", camera.getZoom());
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, heightTexture);

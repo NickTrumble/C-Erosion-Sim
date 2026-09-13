@@ -6,6 +6,7 @@
 #include "input/input.hpp"
 #include "terrain/terrain_generator.hpp"
 #include "render/colour_map.hpp"
+#include "render/camera.hpp"
 #include "app/app_state.hpp"
 #include "input/keybindings.hpp"
 #include <chrono>
@@ -51,6 +52,7 @@ int main() {
     if (benchmark) runHeightmapBenchmark(noise, scale);
 
     Render renderer;
+    Camera camera;
     renderer.uploadHeightmap(heightmap);
     std::optional<std::future<Heightmap>> pendingHeightmap;
 
@@ -59,11 +61,14 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        renderer.drawHeightmap(windowWidth, windowHeight, appState);
-
-        window.swapBuffers();
         window.pollEvents();
         input.update(window);
+        camera.update(window, input);
+
+        const auto [framebufferWidth, framebufferHeight] = window.getFramebufferSize();
+        renderer.drawHeightmap(framebufferWidth, framebufferHeight, appState, camera);
+
+        window.swapBuffers();
 
 
         if (pendingHeightmap.has_value() && pendingHeightmap->wait_for(std::chrono::milliseconds{0}) == std::future_status::ready){
@@ -95,4 +100,3 @@ int main() {
 
     return 0;
 }
-

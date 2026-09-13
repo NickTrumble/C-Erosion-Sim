@@ -7,6 +7,8 @@ uniform sampler2D heightMap;
 uniform float minHeight;
 uniform float maxHeight;
 uniform int colourMapType;
+uniform vec2 cameraCenter;
+uniform float cameraZoom;
 
 out vec4 fragmentColour;
 
@@ -83,7 +85,8 @@ vec3 terrainNormal(vec2 uv)
 
 void main()
 {
-    float height = texture(heightMap, textureCoordinate).r;
+    vec2 cameraCoordinate = cameraCenter + (textureCoordinate - vec2(0.5)) / cameraZoom;
+    float height = texture(heightMap, cameraCoordinate).r;
 
     float range = max(maxHeight - minHeight, 0.0001);
     float normalisedHeight = clamp(
@@ -102,7 +105,7 @@ void main()
         colour = vec3(normalisedHeight);
     }
 
-    vec3 normal = terrainNormal(textureCoordinate);
+    vec3 normal = terrainNormal(cameraCoordinate);
     vec3 lightDirection = normalize(vec3(-0.4, 0.5, 1.0));
 
     float diffuse = max(dot(normal, lightDirection), 0.0);

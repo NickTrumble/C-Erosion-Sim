@@ -4,13 +4,14 @@
 
 #include "../terrain/heightmap.hpp"
 #include "../app/app_state.hpp"
+#include "camera.hpp"
 #include "shaders/shader.hpp"
 
 class Render{
     public:
         Render();
         ~Render();
-        void drawHeightmap(int windowWidth, int windowHeight, AppState state);
+        void drawHeightmap(int windowWidth, int windowHeight, AppState state, const Camera& camera);
         void uploadHeightmap(const Heightmap& heightmap);
         
     private:

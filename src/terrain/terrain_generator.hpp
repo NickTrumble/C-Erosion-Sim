@@ -9,7 +9,8 @@ struct TerrainGeneratorSettings{
     int seed = 0;
     float transferRate = 0.15f;
     float talusThreshold = 0.03f;
-    int erosionIterations = 50;  
+    int erosionIterations = 50;
+    int erosionIterationsPerFrame = 1;
 };
 
 class TerrainGenerator{

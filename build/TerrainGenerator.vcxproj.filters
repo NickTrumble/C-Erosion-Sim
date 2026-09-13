@@ -10,6 +10,9 @@
     <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\render\render.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\render\camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\render\window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
