@@ -13,6 +13,7 @@
 #include <future>
 #include <optional>
 #include <random>
+#include <cmath>
 
 bool handleInputs(Input& input, AppState& state, bool isGenerating){
     if (Keybindings::shouldRegenerate(input)){
@@ -32,6 +33,12 @@ bool handleInputs(Input& input, AppState& state, bool isGenerating){
         std::cout <<"Colour changed: " << colourMapName(state.type) << "\n";
     }
     return false;
+}
+
+float getTimeDifference(std::chrono::steady_clock::time_point previous){
+    return std::chrono::duration<float>(
+        std::chrono::steady_clock::now() - previous
+    ).count();
 }
 
 int main() {
@@ -54,37 +61,40 @@ int main() {
     Render renderer;
     Camera camera;
     renderer.uploadHeightmap(heightmap);
-    std::optional<std::future<Heightmap>> pendingHeightmap;
+    std::future<Heightmap> pendingHeightmap;
+    std::chrono::steady_clock::time_point prevTimeFrame;
+    float duration;
 
     while (!window.shouldClose()){
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-
         window.pollEvents();
         input.update(window);
-        camera.update(window, input);
 
-        const auto [framebufferWidth, framebufferHeight] = window.getFramebufferSize();
-        renderer.drawHeightmap(framebufferWidth, framebufferHeight, appState, camera);
+        duration = getTimeDifference(prevTimeFrame);
+        camera.update(window, input, duration);
+        prevTimeFrame = std::chrono::steady_clock::now();
+
+        std::pair<int, int> frameBufferSize = window.getFramebufferSize();
+        renderer.drawHeightmap(frameBufferSize.first, frameBufferSize.second, appState, camera);
 
         window.swapBuffers();
 
 
-        if (pendingHeightmap.has_value() && pendingHeightmap->wait_for(std::chrono::milliseconds{0}) == std::future_status::ready){
-            heightmap = pendingHeightmap->get();
+        if (pendingHeightmap.valid() && pendingHeightmap.wait_for(std::chrono::milliseconds{0}) == std::future_status::ready){
+            heightmap = pendingHeightmap.get();
             renderer.uploadHeightmap(heightmap);
 
-            pendingHeightmap.reset();
-            std::cout<<"Terrain generation complete with seed: " << terrainSettings.seed <<"\n";
+            std::cout<<"Terrain generated with seed: " << terrainSettings.seed <<"\n";
         }
 
-        if (handleInputs(input, appState, pendingHeightmap.has_value())){
+        if (handleInputs(input, appState, pendingHeightmap.valid())){
             TerrainGeneratorSettings& generatorSettings = terrainSettings;
 
             generatorSettings.seed = std::random_device{}();
 
-            pendingHeightmap.emplace(std::async(
+            pendingHeightmap = std::async(
                 std::launch::async,
                 [generatorSettings, scale] {
                     
@@ -93,9 +103,10 @@ int main() {
                         scale
                     );
                 }
-            ));
+            );
 
         }
+        
     }
 
     return 0;

@@ -9,15 +9,15 @@ constexpr float MaxZoom = 32.0f;
 constexpr float ZoomFactorPerScrollStep = 1.2f;
 }
 
-void Camera::update(Window& window, const Input& input) {
-    const auto [viewportWidth, viewportHeight] = window.getWindowSize();
-    const auto [cursorX, cursorY] = window.getCursorPosition();
+void Camera::update(Window& window, const Input& input, float deltaTime){
+    auto [viewportWidth, viewportHeight] = window.getWindowSize();
+    auto [cursorX, cursorY] = window.getCursorPosition();
 
     if (input.wasPressed(GLFW_KEY_HOME)) {
         reset();
     }
 
-    const double scrollDelta = window.consumeScrollDelta();
+    double scrollDelta = window.consumeScrollDelta();
     if (scrollDelta != 0.0 && viewportWidth > 0 && viewportHeight > 0) {
         zoomAt(
             static_cast<float>(cursorX),
@@ -30,17 +30,23 @@ void Camera::update(Window& window, const Input& input) {
 
     if (hasPreviousCursor && window.isMouseButtonDown(GLFW_MOUSE_BUTTON_MIDDLE) &&
         viewportWidth > 0 && viewportHeight > 0) {
-        const float deltaX = static_cast<float>(cursorX - previousCursorX);
-        const float deltaY = static_cast<float>(cursorY - previousCursorY);
+        float deltaX = static_cast<float>(cursorX - previousCursorX);
+        float deltaY = static_cast<float>(cursorY - previousCursorY);
 
-        centerX -= deltaX / (static_cast<float>(viewportWidth) * zoom);
-        centerY += deltaY / (static_cast<float>(viewportHeight) * zoom);
+        targetCenterX -= deltaX / (static_cast<float>(viewportWidth) * targetZoom);
+        targetCenterY += deltaY / (static_cast<float>(viewportHeight) * targetZoom);
         clampToHeightmap();
     }
 
     previousCursorX = cursorX;
     previousCursorY = cursorY;
     hasPreviousCursor = true;
+
+    float amount = 1.0f - std::exp(-smoothness * deltaTime);
+
+    centerX += (targetCenterX - centerX) * amount;
+    centerY += (targetCenterY - centerY) * amount;
+    zoom += (targetZoom - zoom) * amount;
 }
 
 float Camera::getCenterX() const {
@@ -56,27 +62,27 @@ float Camera::getZoom() const {
 }
 
 void Camera::reset() {
-    centerX = 0.5f;
-    centerY = 0.5f;
-    zoom = MinZoom;
+    targetCenterX = 0.5f;
+    targetCenterY = 0.5f;
+    targetZoom = MinZoom;
 }
 
 void Camera::zoomAt(float cursorX, float cursorY, int viewportWidth, int viewportHeight, float amount) {
-    const float cursorUvX = cursorX / static_cast<float>(viewportWidth);
-    const float cursorUvY = 1.0f - cursorY / static_cast<float>(viewportHeight);
+    float cursorUvX = cursorX / static_cast<float>(viewportWidth);
+    float cursorUvY = 1.0f - cursorY / static_cast<float>(viewportHeight);
 
-    const float heightmapX = centerX + (cursorUvX - 0.5f) / zoom;
-    const float heightmapY = centerY + (cursorUvY - 0.5f) / zoom;
+    float heightmapX = targetCenterX + (cursorUvX - 0.5f) / targetZoom;
+    float heightmapY = targetCenterY + (cursorUvY - 0.5f) / targetZoom;
 
-    zoom = std::clamp(zoom * std::pow(ZoomFactorPerScrollStep, amount), MinZoom, MaxZoom);
+    targetZoom = std::clamp(targetZoom * std::pow(ZoomFactorPerScrollStep, amount), MinZoom, MaxZoom);
 
-    centerX = heightmapX - (cursorUvX - 0.5f) / zoom;
-    centerY = heightmapY - (cursorUvY - 0.5f) / zoom;
+    targetCenterX = heightmapX - (cursorUvX - 0.5f) / targetZoom;
+    targetCenterY = heightmapY - (cursorUvY - 0.5f) / targetZoom;
     clampToHeightmap();
 }
 
 void Camera::clampToHeightmap() {
-    const float halfVisibleRange = 0.5f / zoom;
-    centerX = std::clamp(centerX, halfVisibleRange, 1.0f - halfVisibleRange);
-    centerY = std::clamp(centerY, halfVisibleRange, 1.0f - halfVisibleRange);
+    float halfVisibleRange = 0.5f / targetZoom;
+    targetCenterX = std::clamp(targetCenterX, halfVisibleRange, 1.0f - halfVisibleRange);
+    targetCenterY = std::clamp(targetCenterY, halfVisibleRange, 1.0f - halfVisibleRange);
 }

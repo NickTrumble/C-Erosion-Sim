@@ -5,8 +5,12 @@
 
 class Camera {
 public:
-    void update(Window& window, const Input& input);
+    void update(Window& window, const Input& input, float deltaTime);
 
+    float targetCenterX = 0.5f;
+    float targetCenterY = 0.5f;
+    float targetZoom = 1.0f;
+    float smoothness = 12.0f;
     float getCenterX() const;
     float getCenterY() const;
     float getZoom() const;
