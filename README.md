@@ -44,7 +44,7 @@ This is a **3.07x speedup** over the original 276.027 ms average (about a 67% re
 
 ### Thermal erosion
 
-Thermal erosion is used when generating the heightmap through comparing slopes then moving the sediment to the lowest slope nearby, and is applied after default terrain generated
+Thermal erosion is used when generating the heightmap through comparing slopes then moving the sediment to the lowest slope nearby, and is applied after default terrain generated.
 
 | Run | Time (ms) |
 |---:|---:|
@@ -55,7 +55,7 @@ Thermal erosion is used when generating the heightmap through comparing slopes t
 | 5 | 2549.75 |
 | Average | **2003.53** |
 
-This is 22.28x slower than the original 89.980 ms average (about a 2228% increase).
+This is ***22.28x slower** than the original 89.980 ms average (about a 2228% increase).
 
 ### Parallel thermal erosion
 
