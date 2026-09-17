@@ -1,8 +1,5 @@
 #include "benchmark.hpp"
 
-#include "../maths/noise/perlin.hpp"
-#include "../terrain/heightmap.hpp"
-
 #include <chrono>
 #include <iostream>
 #include <string>
@@ -25,7 +22,7 @@ double endTimer(const Clock::time_point& startPoint, const std::string& name) {
 
 } // namespace
 
-void runHeightmapBenchmark(perlin& noise, float scale, int attempts) {
+void runHeightmapBenchmark(TerrainGeneratorSettings noise, float scale, int attempts) {
     std::string benchmarkName = "Heightmap Generation";
 
     if (attempts <= 0) {
@@ -36,7 +33,7 @@ void runHeightmapBenchmark(perlin& noise, float scale, int attempts) {
 
     for (int attempt = 0; attempt < attempts; ++attempt) {
         const auto start = startTimer();
-        Heightmap heightmap = Heightmap::generateHeightmap(noise, scale);
+        Heightmap heightmap = TerrainGenerator::generate(noise, scale);
         totalDuration += endTimer(start, benchmarkName);
     }
 

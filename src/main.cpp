@@ -42,7 +42,7 @@ float getTimeDifference(std::chrono::steady_clock::time_point previous){
 }
 
 int main() {
-    bool benchmark = false;
+    bool benchmark = true;
 
     int windowWidth = 1024;
     int windowHeight = 1024;
@@ -56,7 +56,7 @@ int main() {
     perlin noise(terrainSettings.heightmapSize, terrainSettings.octaves, terrainSettings.persistence, terrainSettings.seed);
     Heightmap heightmap = TerrainGenerator::generate(terrainSettings, scale);
 
-    if (benchmark) runHeightmapBenchmark(noise, scale);
+    if (benchmark) runHeightmapBenchmark(terrainSettings, scale);
 
     Render renderer;
     Camera camera;

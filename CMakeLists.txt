@@ -25,6 +25,7 @@ add_executable(TerrainGenerator
     src/render/colour_map.cpp
     src/render/shaders/shader.cpp
     src/terrain/erosion/thermal_erosion.cpp
+    src/terrain/chunk.cpp
 )
 
 

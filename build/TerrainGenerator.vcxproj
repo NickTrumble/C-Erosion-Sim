@@ -373,6 +373,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\render\colour_map.cpp" />
     <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\render\shaders\shader.cpp" />
     <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\terrain\erosion\thermal_erosion.cpp" />
+    <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\terrain\chunk.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="C:\Users\iantr\Desktop\coding\c++ Terrain\build\ZERO_CHECK.vcxproj">

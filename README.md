@@ -13,7 +13,6 @@
 | Persistence | 0.5 |
 | Scale | 0.02 |
 | Samples | 5 |
-| Average time | **276.027 ms** |
 
 The timing covers `Heightmap::generateHeightmap()` only. Perlin construction,
 window setup, rendering, and display are excluded.
@@ -25,6 +24,7 @@ window setup, rendering, and display are excluded.
 | 3 | 262.460 |
 | 4 | 280.995 |
 | 5 | 287.069 |
+| Average | **276.027** |
 
 ### Parallel row generation
 
@@ -41,6 +41,21 @@ and runs those ranges on the available CPU threads.
 | Average | **89.980** |
 
 This is a **3.07x speedup** over the original 276.027 ms average (about a 67% reduction).
+
+### Thermal erosion
+
+Thermal erosion is used when generating the heightmap through comparing slopes then moving the sediment to the lowest slope nearby, and is applied after default terrain generated
+
+| Run | Time (ms) |
+|---:|---:|
+| 1 | 1669.69 |
+| 2 | 1978.69 |
+| 3 | 1830.25 |
+| 4 | 1989.24 |
+| 5 | 2549.75 |
+| Average | **2003.53** |
+
+This is 22.28x slower than the original 89.980 ms average (about a 2228% increase).
 
 ## Asynchronous regeneration
 

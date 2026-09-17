@@ -46,6 +46,9 @@
     <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\terrain\erosion\thermal_erosion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\terrain\chunk.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="C:\Users\iantr\Desktop\coding\c++ Terrain\CMakeLists.txt" />
