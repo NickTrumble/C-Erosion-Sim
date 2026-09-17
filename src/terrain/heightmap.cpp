@@ -33,19 +33,19 @@ Heightmap Heightmap::generateHeightmap(perlin& noise, float scale){
     int size = noise.getSize();
     Heightmap heightmap(size, size);
 
-    const unsigned availableThreads = std::thread::hardware_concurrency();
-    const int workerCount = std::min(
+    unsigned availableThreads = std::thread::hardware_concurrency();
+    int workerCount = std::min(
         size,
         static_cast<int>(availableThreads == 0 ? 1 : availableThreads)
     );
 
-    const int rowsPerWorker = (size + workerCount - 1) / workerCount;
+    int rowsPerWorker = (size + workerCount - 1) / workerCount;
     std::vector<std::thread> workers;
     workers.reserve(workerCount);
 
-    for (int worker = 0; worker < workerCount; ++worker) {
-        const int firstRow = worker * rowsPerWorker;
-        const int lastRow = std::min(size, firstRow + rowsPerWorker);
+    for (int worker = 0; worker < workerCount; worker++) {
+        int firstRow = worker * rowsPerWorker;
+        int lastRow = std::min(size, firstRow + rowsPerWorker);
 
         workers.emplace_back([
             &heightmap,
@@ -90,4 +90,12 @@ std::pair<float, float> Heightmap::findHeightRange() const{
         }
     }
     return std::pair<float, float>(min, max);
+}
+
+std::vector<float>& Heightmap::getValues(){
+    return values;
+}
+
+const std::vector<float>& Heightmap::getValues() const{
+    return values;
 }

@@ -57,6 +57,25 @@ Thermal erosion is used when generating the heightmap through comparing slopes t
 
 This is 22.28x slower than the original 89.980 ms average (about a 2228% increase).
 
+### Parallel thermal erosion
+
+Thermal erosion now divides the heightmap into row ranges and calculates each
+range on a worker thread. Each worker accumulates changes in its own buffer;
+the buffers are combined once all workers finish, avoiding concurrent writes to
+the same heightmap cell.
+
+| Run | Time (ms) |
+|---:|---:|
+| 1 | 1429.26 |
+| 2 | 1476.67 |
+| 3 | 1452.79 |
+| 4 | 1469.09 |
+| 5 | 1766.38 |
+| Average | **1518.84** |
+
+This is a **1.32x speedup** over the earlier 2003.53 ms thermal-erosion
+measurement (about a 24% reduction).
+
 ## Asynchronous regeneration
 
 Pressing `R` starts generation on a background task. The existing terrain remains
