@@ -79,6 +79,32 @@ barrier, eliminating per-iteration thread creation and destruction.
 This is a **1.41x speedup** over the earlier 2003.53 ms thermal-erosion
 measurement (about a 29% reduction).
 
+### Double-buffered gather erosion
+
+The worker-local full-heightmap buffers and serial reduction were replaced with
+a double-buffered gather update. Each erosion iteration first calculates a
+cell's outgoing sediment and destination, then each cell gathers incoming
+sediment from its four neighbours into the next heightmap buffer. A barrier
+swaps the current and next buffers before the following iteration.
+
+This removes the serial combination of a full change map for every worker.
+The reported `Heightmap Generation` measurement covers the complete
+`TerrainGenerator::generate()` call, including heightmap generation and
+thermal erosion.
+
+| Run | Time (ms) |
+|---:|---:|
+| 1 | 737.262 |
+| 2 | 856.450 |
+| 3 | 688.822 |
+| 4 | 730.781 |
+| 5 | 588.396 |
+| Average | **720.342** |
+
+This is a **1.98x speedup** over the worker-local-buffer implementation's
+1425.65 ms average (about a **49.5% reduction** in end-to-end terrain
+generation time).
+
 ## Asynchronous regeneration
 
 Pressing `R` starts generation on a background task. The existing terrain remains

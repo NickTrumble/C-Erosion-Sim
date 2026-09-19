@@ -9,23 +9,22 @@ class ThermalErosion{
         static void apply(Heightmap& heightmap,int iterations,float talusThreshold,float transferRate);
 
     private:
-        static void calculateChangesForRows(
+        static void calculateOutflow(
             std::vector<float>& values,
-            std::vector<float>& localChanges,
-            int width,
-            int firstRow,
-            int lastRow,
-            float talusThreshold,
-            float transferRate
+            std::vector<float>& outflow,
+            std::vector<int>& destination,
+            int width, int firstRow, int lastRow,
+            float talusThreshold, float transferRate,
+            int height
         );
 
-        static void combineWorkerChanges(
-            std::vector<std::vector<float>>& workerChanges,
-            std::vector<float>& heightChanges
+        static void gatherInflow(
+            std::vector<float>& values,
+            std::vector<float>& outflow,
+            std::vector<int>& destination,
+            std::vector<float>& nextValues,
+            int width, int firstRow, int lastRow,
+            int height
         );
 
-        static void applyHeightChanges(
-            std::vector<float>& values,
-            std::vector<float>& heightChanges
-        );
 };

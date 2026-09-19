@@ -6,74 +6,95 @@
 #include <vector>
 #include <barrier>
 
-void ThermalErosion::calculateChangesForRows(
-    std::vector<float>& values,
-    std::vector<float>& localChanges,
-    int width,
-    int firstRow,
-    int lastRow,
-    float talusThreshold,
-    float transferRate
-) {
-    static std::array<std::array<int, 2>, 4> neighbourOffsets{{
-        {{-1, 0}},
-        {{ 1, 0}},
-        {{ 0,-1}},
-        {{ 0, 1}}
+namespace {
+std::array<std::array<int, 2>, 4> offsets{{
+    {{-1, 0}},
+    {{ 1, 0}},
+    {{ 0,-1}},
+    {{ 0, 1}}
     }};
+}
 
-    for (int y = firstRow; y < lastRow; ++y) {
-        for (int x = 1; x < width - 1; ++x) {
-            int currentIndex = y * width + x;
-            float currentHeight = values[currentIndex];
+void ThermalErosion::calculateOutflow(
+    std::vector<float>& values,
+    std::vector<float>& outflow,
+    std::vector<int>& destination,
+    int width, int firstRow, int lastRow,
+    float talusThreshold, float transferRate,
+    int height
+){
+    int first = std::max(1, firstRow);
+    int last = std::min(height - 1, lastRow);
 
+    for (int j = first; j < last; j++)
+    {
+        for (int i = 1; i < width - 1; i++)
+        {
             float steepestDrop = talusThreshold;
-            int lowestX = x;
-            int lowestY = y;
+            int lowestX = i;
+            int lowestY = j;
+            float currentHeight = values[j * width + i];
 
-            for ( auto& offset : neighbourOffsets) {
-                int neighbourX = x + offset[0];
-                int neighbourY = y + offset[1];
-                float neighbourHeight = values[neighbourY * width + neighbourX];
-                float drop = currentHeight - neighbourHeight;
+            outflow[j * width + i] = 0.0f;
+            destination[j * width + i] = j * width + i;
 
-                if (drop > steepestDrop) {
-                    steepestDrop = drop;
+            for (auto& offset : offsets) {
+                int neighbourX = i + offset[0];
+                int neighbourY = j + offset[1];
+                
+                float drop = currentHeight - values[neighbourY * width + neighbourX];
+                if (drop > steepestDrop){
                     lowestX = neighbourX;
                     lowestY = neighbourY;
+                    steepestDrop = drop;
                 }
             }
 
-            if (lowestX == x && lowestY == y) {
+            if (lowestX == i && lowestY == j)
                 continue;
-            }
 
             float movedHeight = (steepestDrop - talusThreshold) * transferRate;
-            localChanges[currentIndex] -= movedHeight;
-            localChanges[lowestY * width + lowestX] += movedHeight;
+            
+            outflow[j * width + i] = movedHeight;
+            destination[j * width + i] = lowestY * width + lowestX;
         }
+        
     }
-}
+}   
 
-void ThermalErosion::combineWorkerChanges(
-    std::vector<std::vector<float>>& workerChanges,
-    std::vector<float>& heightChanges
-) {
-    std::fill(heightChanges.begin(), heightChanges.end(), 0.0f);
-
-    for (auto& localChanges : workerChanges) {
-        for (int index = 0; index < static_cast<int>(heightChanges.size()); ++index) {
-            heightChanges[index] += localChanges[index];
-        }
-    }
-}
-
-void ThermalErosion::applyHeightChanges(
+void ThermalErosion::gatherInflow(
     std::vector<float>& values,
-    std::vector<float>& heightChanges
-) {
-    for (int index = 0; index < static_cast<int>(values.size()); ++index) {
-        values[index] += heightChanges[index];
+    std::vector<float>& outflow,
+    std::vector<int>& destination,
+    std::vector<float>& nextValues,
+    int width, int firstRow, int lastRow,
+    int height
+){
+    for (int j = firstRow; j < lastRow; j++)
+    {
+        for (int i = 0; i < width; i++)
+        {
+            int index = j * width + i;
+
+
+            float inflow = 0;
+            for (auto& offset : offsets) {
+                int neighbourX = i + offset[0];
+                int neighbourY = j + offset[1];
+
+                if (neighbourX < 0 || neighbourX >= width ||
+                    neighbourY < 0 || neighbourY >= height) {
+                    continue;
+                }
+
+                if (destination[neighbourY * width + neighbourX] != index)
+                    continue;
+                
+                inflow += outflow[neighbourY * width + neighbourX];
+            }
+            nextValues[index] = values[index] - outflow[index] + inflow;
+        }
+        
     }
 }
 
@@ -89,94 +110,54 @@ void ThermalErosion::apply(Heightmap& heightmap, int iterations, float talusThre
         return;
     }
 
-    float rate = std::clamp(transferRate, 0.0f, 0.5f);
 
-    std::vector<float> heightChanges(width * height);
+    float rate = std::clamp(transferRate, 0.0f, 0.5f);
 
     unsigned availableThreads = std::thread::hardware_concurrency();
     int workerCount = std::min(
-        height - 2,
+        height,
         static_cast<int>(availableThreads == 0 ? 1 : availableThreads)
     );
 
-    int rowsPerWorker = (height - 2 + workerCount - 1) / workerCount;
+    int rowsPerWorker = (height + workerCount - 1) / workerCount;
     std::vector<std::thread> workers;
     workers.reserve(workerCount);
     
-    std::vector<std::vector<float>> workerChanges(workerCount, std::vector<float>(width * height, 0.0f));
 
-    std::barrier barrier(workerCount, [&]() noexcept {
-        combineWorkerChanges(workerChanges, heightChanges);
-        applyHeightChanges(values, heightChanges);
+    std::vector<float> nextValues(values.size());
+    std::vector<float> outflow(values.size(), 0.0f);
+    std::vector<int> destination(values.size());
+
+    std::barrier outflowBarrier(workerCount);
+    std::barrier iterationBarrier(workerCount, [&]() noexcept {
+        values.swap(nextValues);
     });
 
-    for (int worker = 0; worker < workerCount; worker++){
-        int firstRow = 1 + worker * rowsPerWorker;
-        int lastRow = std::min(height - 1, firstRow + rowsPerWorker);
+    for (int worker = 0; worker < workerCount; worker++)
+    {
+        int firstRow = worker * rowsPerWorker;
+        int lastRow = std::min(height, firstRow + rowsPerWorker);
 
-        workers.emplace_back([&, worker, firstRow, lastRow]{
-            auto& localChanges = workerChanges[worker];
+        workers.emplace_back([&, firstRow, lastRow]{
+            for (int iter = 0; iter < iterations; iter++)
+            {
+                //pass 1: calc outflow
+                calculateOutflow(values, outflow, destination, width, firstRow, lastRow, talusThreshold, rate, height);
+                
+                //outflow barrier
+                outflowBarrier.arrive_and_wait();
 
-            for (int iteration = 0; iteration < iterations; iteration++){
-                std::fill(localChanges.begin(), localChanges.end(), 0.0f);
+                //pass 2: gathers inflow 
+                gatherInflow(values, outflow, destination, nextValues, width, firstRow, lastRow, height);
 
-                calculateChangesForRows(
-                    values,
-                    localChanges,
-                    width,
-                    firstRow,
-                    lastRow,
-                    talusThreshold,
-                    rate
-                );
-
-                barrier.arrive_and_wait();
+                //swap arrays and barrier
+                iterationBarrier.arrive_and_wait();
             }
         });
-    }
+    }      
+    
 
     for (std::thread& worker : workers) {
         worker.join();
     }
-
-    // for (int iter = 0; iter < iterations; ++iter) {
-    //     for (auto& localChanges : workerChanges) {
-    //         std::fill(localChanges.begin(), localChanges.end(), 0.0f);
-    //     }
-
-    //     for (int worker = 0; worker < workerCount; ++worker) {
-    //         int firstRow = 1 + worker * rowsPerWorker;
-    //         int lastRow = std::min(height - 1, firstRow + rowsPerWorker);
-
-    //         auto& localChanges = workerChanges[worker];
-
-    //         workers.emplace_back([
-    //             firstRow,
-    //             lastRow,
-    //             talusThreshold,
-    //             rate,
-    //             &localChanges,
-    //             width,
-    //             &values
-    //         ] {
-    //             ThermalErosion::calculateChangesForRows(
-    //                 values,
-    //                 localChanges,
-    //                 width,
-    //                 firstRow,
-    //                 lastRow,
-    //                 talusThreshold,
-    //                 rate
-    //             );
-    //         });
-    //     }
-
-    //     for (std::thread& worker : workers) {
-    //         worker.join();
-    //     }
-    //     workers.clear();
-
-    //     ThermalErosion::combineWorkerChanges(workerChanges, heightChanges);
-    //     ThermalErosion::applyHeightChanges(values, heightChanges);
-    // }
 }
