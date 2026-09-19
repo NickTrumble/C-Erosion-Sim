@@ -102,7 +102,7 @@ void ThermalErosion::apply(Heightmap& heightmap, int iterations, float talusThre
     int rowsPerWorker = (height - 2 + workerCount - 1) / workerCount;
     std::vector<std::thread> workers;
     workers.reserve(workerCount);
-
+    
     std::vector<std::vector<float>> workerChanges(workerCount, std::vector<float>(width * height, 0.0f));
 
     std::barrier barrier(workerCount, [&]() noexcept {

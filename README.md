@@ -66,15 +66,18 @@ the same heightmap cell.
 
 | Run | Time (ms) |
 |---:|---:|
-| 1 | 1429.26 |
-| 2 | 1476.67 |
-| 3 | 1452.79 |
-| 4 | 1469.09 |
-| 5 | 1766.38 |
-| Average | **1518.84** |
+| 1 | 1438.37 |
+| 2 | 1422.43 |
+| 3 | 1425.69 |
+| 4 | 1422.50 |
+| 5 | 1419.26 |
+| Average | **1425.65** |
 
-This is a **1.32x speedup** over the earlier 2003.53 ms thermal-erosion
-measurement (about a 24% reduction).
+Workers persist across all erosion iterations and synchronize with a C++20
+barrier, eliminating per-iteration thread creation and destruction.
+
+This is a **1.41x speedup** over the earlier 2003.53 ms thermal-erosion
+measurement (about a 29% reduction).
 
 ## Asynchronous regeneration
 
