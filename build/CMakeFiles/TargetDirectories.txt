@@ -1,3 +1,0 @@
-C:/Users/iantr/Desktop/coding/c++ Terrain/build/CMakeFiles/TerrainGenerator.dir
-C:/Users/iantr/Desktop/coding/c++ Terrain/build/CMakeFiles/ALL_BUILD.dir
-C:/Users/iantr/Desktop/coding/c++ Terrain/build/CMakeFiles/ZERO_CHECK.dir
