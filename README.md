@@ -77,12 +77,12 @@ Current local Release measurement:
 
 | Run | Time (ms) |
 |---:|---:|
-| 1 | 132.384 |
-| 2 | 113.465 |
-| 3 | 83.872 |
-| 4 | 81.926 |
-| 5 | 90.995 |
-| Average | **100.528** |
+| 1 | 85.4347 |
+| 2 | 84.0636 |
+| 3 | 101.824 |
+| 4 | 87.434 |
+| 5 | 97.2847 |
+| Average | **91.2083** |
 
 Timings vary with CPU model, background activity, compiler version, and build
 configuration.
