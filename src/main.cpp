@@ -19,13 +19,41 @@
 #include <iostream>
 #include "app/file_dialog.hpp"
 
-bool handleInputs(Input& input, AppState& state, bool isGenerating){
+enum class GenerationRequest {
+    None,
+    Animated,
+    Complete,
+    Benchmark
+};
+
+GenerationRequest handleInputs(
+    Input& input,
+    AppState& state,
+    bool isGenerating
+){
     if (Keybindings::shouldRegenerate(input)){
         if (isGenerating){
             std::cout << "Terrain generation is already in progress.\n";
+            return GenerationRequest::None;
         }
         else {
-            return true;
+            return GenerationRequest::Complete;
+        }
+    }
+    if (Keybindings::shouldAnimate(input)){
+        if (isGenerating){
+            std::cout << "Terrain generation is already in progress.\n";
+            return GenerationRequest::None;
+        }
+        else {
+            return GenerationRequest::Animated;
+        }
+    }
+    if (Keybindings::shouldBenchmark(input)) {
+        if (isGenerating) {
+            std::cout << "Wait for terrain generation to finish before benchmarking.\n";
+        } else {
+            return GenerationRequest::Benchmark;
         }
     }
     if (Keybindings::shouldToggleControls(input)){
@@ -36,7 +64,7 @@ bool handleInputs(Input& input, AppState& state, bool isGenerating){
         state.type = ColourMap::nextColourMap(state.type);
         std::cout <<"Colour changed: " << colourMapName(state.type) << "\n";
     }
-    return false;
+    return GenerationRequest::None;
 }
 
 float getTimeDifference(std::chrono::steady_clock::time_point previous){
@@ -46,7 +74,6 @@ float getTimeDifference(std::chrono::steady_clock::time_point previous){
 }
 
 int main() {
-    bool benchmark = true;
 
     int windowWidth = 1024;
     int windowHeight = 1024;
@@ -57,21 +84,20 @@ int main() {
     Input input;
     Window window(windowWidth, windowHeight, "Terrain generator");
 
-    if (benchmark) {
-        runHeightmapBenchmark(terrainSettings);
-    }
-
     Render renderer;
     Camera camera;
     Heightmap heightmap(1, 1);
     renderer.uploadHeightmap(heightmap);
 
+    bool hasTerrain = false;
+    GenerationRequest activeGeneration = GenerationRequest::Complete;
     std::future<Heightmap> pendingHeightmap;
     int erosionIterationsRemaining = 0;
     auto prevTimeFrame = std::chrono::steady_clock::now();
 
     auto startAnimatedGeneration = [&] {
-        const TerrainGeneratorSettings generatorSettings = terrainSettings;
+        activeGeneration = GenerationRequest::Animated;
+        TerrainGeneratorSettings generatorSettings = terrainSettings;
 
         pendingHeightmap = std::async(
             std::launch::async,
@@ -81,10 +107,22 @@ int main() {
         );
     };
 
-    startAnimatedGeneration();
+    auto startCompleteGeneration = [&] {
+        activeGeneration = GenerationRequest::Complete;
+        TerrainGeneratorSettings generatorSettings = terrainSettings;
+
+        pendingHeightmap = std::async(
+            std::launch::async,
+            [generatorSettings] {
+                return TerrainGenerator::generate(generatorSettings);
+            }
+        );
+    };
+
+    startCompleteGeneration();
 
     while (!window.shouldClose()) {
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         window.pollEvents();
         input.update(window);
@@ -93,12 +131,30 @@ int main() {
         camera.update(window, input, duration);
         prevTimeFrame = std::chrono::steady_clock::now();
 
-        const bool isTerrainGenerating =
-            pendingHeightmap.valid() || erosionIterationsRemaining > 0;
+        bool isTerrainGenerating = pendingHeightmap.valid() || erosionIterationsRemaining > 0;
 
-        if (handleInputs(input, appState, isTerrainGenerating)) {
-            terrainSettings.seed = std::random_device{}();
-            startAnimatedGeneration();
+        auto generationRequest = handleInputs(
+            input,
+            appState,
+            isTerrainGenerating
+        );
+
+        switch (generationRequest){
+            case GenerationRequest::Animated:
+                terrainSettings.seed = std::random_device{}();
+                startAnimatedGeneration();
+                break;
+            case GenerationRequest::Complete:
+                terrainSettings.seed = std::random_device{}();
+                startCompleteGeneration();
+                break;
+            case GenerationRequest::Benchmark:
+                std::cout << "Benchmark started.\n";
+                runHeightmapBenchmark(terrainSettings);
+                std::cout << "Benchmark complete.\n";
+                break;
+            default:
+                break;
         }
 
         //handle saving
@@ -107,15 +163,22 @@ int main() {
                 std::cout << "Wait for terrain generation to finish before saving.\n";
             } else {
                 auto savePath = FileDialog::chooseSavePath();
-                ExportTerrain terrainExporter;
-                    
-                terrainExporter.saveTerrain(
-                    heightmap,
-                    terrainSettings,
-                    *savePath
-                );
 
-                std::cout << "Terrain saved to: " << savePath.value().string() << '\n';
+                if (!savePath) {
+                    std::cout << "Save cancelled.\n";
+                } else {
+                    ExportTerrain terrainExporter;
+
+                    if (terrainExporter.saveTerrain(
+                        heightmap,
+                        terrainSettings,
+                        *savePath
+                    )) {
+                        std::cout << "Terrain saved to: " << savePath->string() << '\n';
+                    } else {
+                        std::cout << "Terrain saving unsuccessful.\n";
+                    }
+                }
             }
         }
 
@@ -149,11 +212,17 @@ int main() {
         }
 
         bool heightmapChanged = false;
+
         if (pendingHeightmap.valid() &&
-            pendingHeightmap.wait_for(std::chrono::milliseconds{0}) ==
-                std::future_status::ready) {
+            pendingHeightmap.wait_for(std::chrono::milliseconds{0}) == std::future_status::ready
+        ) {
             heightmap = pendingHeightmap.get();
-            erosionIterationsRemaining = terrainSettings.erosionIterations;
+            hasTerrain = true;
+            if (activeGeneration == GenerationRequest::Animated) {
+                erosionIterationsRemaining = terrainSettings.erosionIterations;
+            } else {
+                erosionIterationsRemaining = 0;
+            }
             heightmapChanged = true;
 
             std::cout << "Base terrain generated with seed: "<< terrainSettings.seed << "\n";
@@ -182,7 +251,8 @@ int main() {
         }
 
         const std::pair<int, int> frameBufferSize = window.getFramebufferSize();
-        renderer.drawHeightmap(frameBufferSize.first, frameBufferSize.second, appState, camera);
+        if (hasTerrain)
+            renderer.drawHeightmap(frameBufferSize.first, frameBufferSize.second, appState, camera);
         window.swapBuffers();
     }
 

@@ -43,6 +43,8 @@
 build/
 Build/
 build-*/
+.vs/
+*.vcxproj.user
 
 # CMake generated files
 CMakeFiles/

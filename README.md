@@ -5,6 +5,8 @@ eroded 2D heightmap. The application renders the terrain with OpenGL, supports
 interactive camera controls and colour maps, and can save or load terrain files
 through native Windows file dialogs.
 
+![Terrain viewer screenshot](assets/terrain-preview.png)
+
 ## Highlights
 
 - Parallel Perlin heightmap generation using independent row workers.
@@ -77,12 +79,12 @@ Current local Release measurement:
 
 | Run | Time (ms) |
 |---:|---:|
-| 1 | 85.4347 |
-| 2 | 84.0636 |
+| 1 | 85.435 |
+| 2 | 84.064 |
 | 3 | 101.824 |
 | 4 | 87.434 |
-| 5 | 97.2847 |
-| Average | **91.2083** |
+| 5 | 97.285 |
+| Average | **91.208** |
 
 Timings vary with CPU model, background activity, compiler version, and build
 configuration.

@@ -1,15 +1,25 @@
 #include "keybindings.hpp"
 
-//R - REGENERATE TERRAIN WITH ANIMATION
-//LSHIFT - SHOW CONTROLS OVERLAY
+//R - REGENERATE TERRAIN WITHOUT ANIMATIONS
+//A - REGENERATE TERRAIN WITH ANIMATION
+//B - BENCHMARK COMPLETE TERRAIN GENERATION
+//K - SHOW CONTROLS OVERLAY
 //C - CHANGE TERRAIN COLOUR MAP
 
 bool Keybindings::shouldRegenerate(Input& input){
     return input.wasPressed(GLFW_KEY_R);
 }
 
+bool Keybindings::shouldAnimate(Input& input){
+    return input.wasPressed(GLFW_KEY_A);
+}
+
+bool Keybindings::shouldBenchmark(Input& input){
+    return input.wasPressed(GLFW_KEY_B);
+}
+
 bool Keybindings::shouldToggleControls(Input& input){
-    return input.wasPressed(GLFW_KEY_LEFT_SHIFT);
+    return input.wasPressed(GLFW_KEY_K);
 }
 
 bool Keybindings::shouldChangeColourMap(Input& input){

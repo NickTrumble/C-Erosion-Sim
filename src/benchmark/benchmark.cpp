@@ -23,7 +23,7 @@ double endTimer(const Clock::time_point& startPoint, const std::string& name) {
 } // namespace
 
 void runHeightmapBenchmark(TerrainGeneratorSettings noise, int attempts) {
-    std::string benchmarkName = "Heightmap Generation";
+    std::string benchmarkName = "Terrain pipeline (base + erosion)";
 
     if (attempts <= 0) {
         return;
