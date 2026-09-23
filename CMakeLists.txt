@@ -26,10 +26,12 @@ add_executable(TerrainGenerator
     src/render/shaders/shader.cpp
     src/terrain/erosion/thermal_erosion.cpp
     src/terrain/chunk.cpp
+    src/app/exportTerrain.cpp
+    src/app/file_dialog.cpp
 )
 
 
-target_link_libraries(TerrainGenerator PRIVATE glfw glad::glad OpenGL::GL)
+target_link_libraries(TerrainGenerator PRIVATE glfw glad::glad OpenGL::GL comdlg32)
 target_compile_definitions(TerrainGenerator PRIVATE
     TERRAIN_SHADER_DIR="${CMAKE_CURRENT_SOURCE_DIR}/src/render/shaders"
 )

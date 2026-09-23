@@ -22,7 +22,7 @@ double endTimer(const Clock::time_point& startPoint, const std::string& name) {
 
 } // namespace
 
-void runHeightmapBenchmark(TerrainGeneratorSettings noise, float scale, int attempts) {
+void runHeightmapBenchmark(TerrainGeneratorSettings noise, int attempts) {
     std::string benchmarkName = "Heightmap Generation";
 
     if (attempts <= 0) {
@@ -33,7 +33,7 @@ void runHeightmapBenchmark(TerrainGeneratorSettings noise, float scale, int atte
 
     for (int attempt = 0; attempt < attempts; ++attempt) {
         const auto start = startTimer();
-        Heightmap heightmap = TerrainGenerator::generate(noise, scale);
+        Heightmap heightmap = TerrainGenerator::generate(noise);
         totalDuration += endTimer(start, benchmarkName);
     }
 

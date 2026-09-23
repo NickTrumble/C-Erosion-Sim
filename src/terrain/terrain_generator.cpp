@@ -1,7 +1,14 @@
 #include "terrain_generator.hpp"
 #include "erosion/thermal_erosion.hpp"
 
-Heightmap TerrainGenerator::generate(const TerrainGeneratorSettings& settings, float scale){
+Heightmap TerrainGenerator::generate(const TerrainGeneratorSettings& settings){
+    Heightmap heightmap = generateBase(settings);
+
+    ThermalErosion::apply(heightmap, settings.erosionIterations, settings.talusThreshold, settings.transferRate);
+    return heightmap;
+}
+
+Heightmap TerrainGenerator::generateBase(const TerrainGeneratorSettings& settings){
     perlin noise(        
         settings.heightmapSize,
         settings.octaves,
@@ -9,8 +16,6 @@ Heightmap TerrainGenerator::generate(const TerrainGeneratorSettings& settings, f
         settings.seed
     );
     
-    Heightmap heightmap = Heightmap::generateHeightmap(noise, scale);
-
-    ThermalErosion::apply(heightmap, settings.erosionIterations, settings.talusThreshold, settings.transferRate);
+    Heightmap heightmap = Heightmap::generateHeightmap(noise, settings.scale);
     return heightmap;
 }

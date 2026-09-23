@@ -49,6 +49,12 @@
     <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\terrain\chunk.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\app\exportTerrain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\iantr\Desktop\coding\c++ Terrain\src\app\file_dialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="C:\Users\iantr\Desktop\coding\c++ Terrain\CMakeLists.txt" />
